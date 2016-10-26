@@ -2,12 +2,25 @@
 
 import picamera
 import requests
+import os
 from time import sleep
 
 camera = picamera.PiCamera()
+error = 0
+INTERVAL = 3
 
 while(True):
-	camera.capture('snapshot.jpg')
-	send = requests.post('https://honeypot-proto.herokuapp.com/snapshot', files={'image': open('snapshot.jpg', 'rb')})
-	print(send.text)
-	sleep(3)
+	try:
+		camera.capture('snapshot.jpg')
+		send = requests.post('https://honeypot-proto.herokuapp.com/snapshot', files={'image': open('snapshot.jpg', 'rb')})
+		#send = requests.post('http://192.168.0.17:5000/snapshot', files={'image': open('snapshot.jpg', 'rb')})
+		print(send.text)
+		error = 0
+	except:
+		print 'Error'
+		error += 1
+
+	if error*INTERVAL > 3600: 
+		os.system('sudo reboot -r now')			
+
+	sleep(INTERVAL)
