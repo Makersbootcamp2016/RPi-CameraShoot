@@ -1,0 +1,27 @@
+#!/usr/bin/python
+
+import picamera
+import requests
+import os
+from time import sleep
+
+camera = picamera.PiCamera()
+
+
+def take_shot():
+    print('taking shot')
+    camera.capture('usershot.jpg')
+    send = requests.post('https://honeypot-proto.herokuapp.com/shot', files={'image': open('usershot.jpg', 'rb')})
+    #send = requests.post('http://192.168.0.17:8000/shot', files={'image': open('usershot.jpg', 'rb')})
+
+while True:
+    #clic = requests.get('http://192.168.0.17:8000/clac')
+    try:
+        clic = requests.get('http://honeypot-proto.herokuapp.com/clac')
+        if clic.text == 'YES':
+            take_shot()
+        else:
+            print('waiting')
+    except:
+	print('no connection')
+	sleep(1)
